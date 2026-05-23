@@ -1,22 +1,43 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import './App.css';
+import { addTask } from './taskSlice';
 
 function App() {
+  const [taskText, setTaskText] = useState('');
+  const tasks = useSelector((state) => state.task.tasks);
+  const dispatch = useDispatch();
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const trimmedText = taskText.trim();
+    if (!trimmedText) return;
+    dispatch(addTask(trimmedText));
+    setTaskText('');
+  };
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <h1>Task List</h1>
+        <form onSubmit={handleSubmit} className="task-form">
+          <input
+            type="text"
+            value={taskText}
+            onChange={(event) => setTaskText(event.target.value)}
+            placeholder="Enter a task"
+          />
+          <button type="submit">Add Task</button>
+        </form>
+        {tasks.length === 0 ? (
+          <p>No tasks yet. Add your first task.</p>
+        ) : (
+          <ul className="task-list">
+            {tasks.map((task, index) => (
+              <li key={index}>{task}</li>
+            ))}
+          </ul>
+        )}
       </header>
     </div>
   );
