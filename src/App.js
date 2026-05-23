@@ -1,45 +1,37 @@
-import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
-import { addTask } from './taskSlice';
+import Navigation from './components/Navigation';
+import Home from './pages/Home';
+import About from './pages/About';
+import Contact from './pages/Contact';
 
 function App() {
-  const [taskText, setTaskText] = useState('');
-  const tasks = useSelector((state) => state.task.tasks);
-  const dispatch = useDispatch();
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('theme') || 'dark';
+  });
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const trimmedText = taskText.trim();
-    if (!trimmedText) return;
-    dispatch(addTask(trimmedText));
-    setTaskText('');
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Task List</h1>
-        <form onSubmit={handleSubmit} className="task-form">
-          <input
-            type="text"
-            value={taskText}
-            onChange={(event) => setTaskText(event.target.value)}
-            placeholder="Enter a task"
-          />
-          <button type="submit">Add Task</button>
-        </form>
-        {tasks.length === 0 ? (
-          <p>No tasks yet. Add your first task.</p>
-        ) : (
-          <ul className="task-list">
-            {tasks.map((task, index) => (
-              <li key={index}>{task}</li>
-            ))}
-          </ul>
-        )}
-      </header>
-    </div>
+    <Router>
+      <div className={`App ${theme}-mode`}>
+        <Navigation theme={theme} toggleTheme={toggleTheme} />
+        <main className="main-content">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+          </Routes>
+        </main>
+      </div>
+    </Router>
   );
 }
 
